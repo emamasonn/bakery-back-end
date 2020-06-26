@@ -1,22 +1,19 @@
 const express = require('express');
 const fileUpload = require('express-fileupload');
 const app = express();
+const Imagen = require('../models/imagen')
+//const Usuario = require('../models/usuario')
+//const Producto = require('../models/producto')
 const fs = require('fs')
 const path = require('path')
 app.use(fileUpload());
 
-//api para cargar la imagen post
 
-//api para obtener la lista de imagenes get
-
-//api para modificar la imagen
-
-//api para eliminar una imagen
-
-app.post('/upload', (req, res)=>{
+app.post('/upload/:tipo', (req, res)=>{
     
     let tipo = req.params.tipo
-    let id = req.params.id
+    let nameImg = req.body.name
+    let descriptionImg = req.body.description
 
     if (!req.files) {
         return res.status(400).json({
@@ -26,12 +23,22 @@ app.post('/upload', (req, res)=>{
             }
         });
     }
+
+    let tipoValido = ['user', 'product']
+    if(tipoValido.indexOf(tipo) < 0){
+        return res.status(400).json({
+            ok: false,
+            err: {
+                message: 'El tipo no es valido'
+            }
+        })
+    }
        
-    let archivo = req.files.archivo;
+    let imgFile = req.files.imgFile;
 
     let extensionesValidas = ['jpg', 'png', 'gif', 'jpeg']
-    let nombreArchivo = archivo.name.split('.')
-    let extension = nombreArchivo[nombreArchivo.length - 1]
+    let nameFile = imgFile.name.split('.')
+    let extension = nameFile[nameFile.length - 1]
 
     if(extensionesValidas.indexOf(extension) < 0){
         return res.status(400).json({
@@ -42,24 +49,54 @@ app.post('/upload', (req, res)=>{
         })
     }
 
-    let nombreFinal = `${id}-${new Date().getMilliseconds()}.${extension}`
+    let nameFinish = `${nameImg}.${extension}`
 
-    archivo.mv(`uploads/${nombreFinal}`, (err) => {
+    let pathImagen = path.resolve(__dirname, `../../uploads/${tipo}/${nameFinish}`)
+    if(fs.existsSync(pathImagen)){
+        Imagen.findOneAndDelete({name: nameFinish}, (err, imagen)=>{
+            if(err){
+                res.status(500).json({
+                    ok: false,
+                    err
+                })
+            }
+        })
+        fs.unlinkSync(pathImagen)
+    }
+
+    imgFile.mv(`uploads/${tipo}/${nameFinish}`, (err) => {
         if (err)
           return res.status(500).json({
                 ok: false,
                 err
           });
 
-        //imagenProducto(id, res, nombreFinal)  
+        let imagen = new Imagen({
+            name: nameFinish,
+            description: descriptionImg,
+            extension: extension,
+        })
         
+        imagen.save((err, imagenDB)=>{
+            if(err){
+                res.status(500).json({
+                    ok: false,
+                    err
+                })
+            }
+            if(!imagenDB){
+                res.status(400).json({
+                    ok: false,
+                    err
+                })
+            }
+
+            res.json({
+                ok: true,
+                imagen: imagenDB
+            })
+        })
     });
 });
 
-/*function borrarImagen(nombreImagen, tipo){
-    let pathImagen = path.resolve(__dirname, `../../uploads/${tipo}/${nombreImagen}`)
-    if(fs.existsSync(pathImagen)){
-        fs.unlinkSync(pathImagen)
-    }
-}*/
 module.exports = app;

@@ -27,8 +27,7 @@ let productSchema = new Schema({
         },
         img: {
             type: Schema.Types.ObjectId, 
-            ref: 'Imagen', 
-            required: true 
+            ref: 'Imagen',
         },
 });
 
