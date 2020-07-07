@@ -1,11 +1,12 @@
 const express = require('express')
 const app = express()
 const Category = require('../models/category')
+const { headers } = require('../milddlewares/milddelewares');
 
 //===================================
 //Get all the categories
 //===================================
-app.get('/category', (req, res)=> {
+app.get('/category', headers, (req, res)=> {
     
     Category.find({})
     .sort('name')

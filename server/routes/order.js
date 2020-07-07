@@ -1,30 +1,25 @@
 const express = require('express');
 const app = express();
-const Product = require('../models/product');
+const Order = require('../models/order');
 const { headers } = require('../milddlewares/milddelewares');
 
 //===================================
-//Get all the products
+//Get all the Order
 //===================================
-app.get('/product', headers, (req, res)=> {
-    let begin = Number(req.query.desde) || 0
-    let end = Number(req.query.limite) || 15
+app.get('/order', headers, (req, res)=> {
 
-    Product.find({})
-            .skip(begin)
-            .limit(end)
-            .populate('img', 'name')
-            .exec((err, product) => {
+    Order.find({})
+            .exec((err, order) => {
                 if(err){
                     res.status(500).json({
                         ok: false,
                         err
                     })
                 }
-                Product.count({}, (err, conteo) => {
+                Order.count({}, (err, conteo) => {
                     res.json({
                         ok: true,
-                        product,
+                        order,
                         cuanto: conteo
                     })
                 })
@@ -34,14 +29,13 @@ app.get('/product', headers, (req, res)=> {
 
 
 //===================================
-//Show a product 
+//Show a order 
 //===================================
-app.get('/product/:id', headers, (req, res)=> {
+app.get('/order/find/:id', headers, (req, res)=> {
     let id = req.params.id
-    console.log(id)
-    Product.findById({id})
-            .populate('imagen', 'name')
-            .exec((err, product) => {
+    
+    Order.findById({_id: id})
+            .exec((err, order) => {
                 if(err){
                     res.status(400).json({
                     ok: false,
@@ -49,68 +43,47 @@ app.get('/product/:id', headers, (req, res)=> {
                     })
                 }
 
-                if(!product){
+                if(!order){
                     res.status(400).json({
                         ok: false,
                         err: {
-                            message: 'this product does not exist'
+                            message: 'this order does not exist'
                         }
                     })
                 }
                 res.json({
                     ok: true,
-                    productff: product
+                    order
                 })
             })
 })
 //===================================
-//Search a product
+//Create a order
 //===================================
-app.get('/product/search/:termino', headers, (req, res)=>{
-    
-    let termino = req.params.termino
-    let regex = new RegExp(termino, 'i')
-    
-    Product.find({name: regex})
-        .populate('imagen', 'name')
-        .exec((err, product)=>{
-            if(err){
-                res.status(400).json({
-                ok: false,
-                err
-                })
-            }
-            res.json({
-                ok: true,
-                product  
-            })
-        })
-})
-
-
-//===================================
-//Create a product
-//===================================
-app.post('/product', (req, res)=> {
+app.post('/order', (req, res)=> {
     let body = req.body
-    
-    let product = new Product({
+
+    let order = new Order({
         name: body.name,
-        priceUni: body.priceUni,
+        lastName: body.lastName,
+        address: body.address,
+        departament: body.departament,
+        location: body.location,
+        telephone: body.telephone,
+        email: body.email,
         description: body.description,
-        available: body.available,
-        category: body.category,
-        img: body.imagen,
+        available: true,
+        products: [{name: 'nombre del producto', priceUni: 9, quality:  2}, {name: 'nombre del producto', priceUni: 10, quality:  3}],
     })
 
-    product.save((err, productDB)=>{
+    order.save((err, orderDB)=>{
         if(err){
             res.status(500).json({
                 ok: false,
                 err
             })
         }
-        if(!productDB){
+        if(!orderDB){
             res.status(400).json({
                 ok: false,
                 err
@@ -118,7 +91,7 @@ app.post('/product', (req, res)=> {
         }
         res.json({
             ok: true,
-            product: productDB
+            order: orderDB
         })
     })   
 })
@@ -126,7 +99,7 @@ app.post('/product', (req, res)=> {
 //===================================
 //Edit a product
 //===================================
-app.put('/product/:id', (req, res)=> {
+/*app.put('/product/:id', (req, res)=> {
     
     let id = req.params.id
 
@@ -151,15 +124,16 @@ app.put('/product/:id', (req, res)=> {
         })
     })
 })
+*/
 
 //===================================
-//Delete a product
+//Delete a order
 //===================================
-app.delete('/product/:id', (req, res)=> {
+app.delete('/order/delete/:id', (req, res)=> {
     
     let id = req.params.id
 
-    Product.findByIdAndUpdate(id, {available: false}, (err, productDB) => {
+    Order.findByIdAndDelete(id, (err, orderDB) => {
         if(err){
             res.status(400).json({
                 ok: false,
@@ -167,7 +141,7 @@ app.delete('/product/:id', (req, res)=> {
             })
         }
 
-        if(!productDB){
+        if(!orderDB){
             res.status(400).json({
                 ok: false,
                 err: {
@@ -178,40 +152,39 @@ app.delete('/product/:id', (req, res)=> {
 
         res.json({
             ok: true,
-            message: "Product deleted"
+            message: "Order deleted"
         })
 
     })
 })
 
 //===================================
-//Show products for categories
+//Edit a order
 //===================================
-app.get('/product/find/:category', headers, (req, res)=> {
-    let category = req.params.category
-    Product.find({category: category})
-            .populate('imagen', 'name')
-            .exec((err, product) => {
-                if(err){
-                    res.status(400).json({
-                    ok: false,
-                    err
-                    })
-                }
+app.put('/order/edit/:id', (req, res)=> {
+    
+    let id = req.params.id
 
-                if(!product){
-                    res.status(400).json({
-                        ok: false,
-                        err: {
-                            message: 'this product does not exist'
-                        }
-                    })
-                }
-                res.json({
-                    ok: true,
-                    product
-                })
+    Order.findByIdAndUpdate(id, req.body, {new: true, runValidators: true}, (err, orderDB) => {
+        if(err){
+            res.status(400).json({
+                ok: false,
+                err
             })
+        }
+
+        if(!orderDB){
+            res.status(400).json({
+                ok: false,
+                err
+            })
+        }
+
+        res.json({
+            ok: true,
+            order: orderDB
+        })
+    })
 })
 
 module.exports = app;

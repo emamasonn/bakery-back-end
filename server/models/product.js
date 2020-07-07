@@ -21,9 +21,8 @@ let productSchema = new Schema({
             default: true 
         },
         category: { 
-            type: Schema.Types.ObjectId, 
-            ref: 'Category', 
-            required: true 
+            type: String,  
+            required: [true, 'The category is necessary'] 
         },
         img: {
             type: Schema.Types.ObjectId, 
