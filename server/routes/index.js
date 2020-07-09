@@ -7,5 +7,6 @@ app.use(require("./upload"))
 app.use(require("./imagenes"))
 app.use(require("./order"))
 app.use(require("./account"))
+app.use(require("./message"))
 
 module.exports = app;
