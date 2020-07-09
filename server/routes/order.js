@@ -1,66 +1,59 @@
 const express = require('express');
 const app = express();
 const Order = require('../models/order');
-const { headers } = require('../milddlewares/milddelewares');
+const nodeMailer = require('nodemailer');
+const {headers} = require('../milddlewares/milddelewares');
 
-//===================================
-//Get all the Order
-//===================================
-app.get('/order', headers, (req, res)=> {
+// =================================== Get all the Order
+// ===================================
+app.get('/order', headers, (req, res) => {
 
-    Order.find({})
-            .exec((err, order) => {
-                if(err){
-                    res.status(500).json({
-                        ok: false,
-                        err
-                    })
-                }
-                Order.count({}, (err, conteo) => {
-                    res.json({
-                        ok: true,
-                        order,
-                        cuanto: conteo
-                    })
-                })
-                
+    Order
+        .find({})
+        .exec((err, order) => {
+            if (err) {
+                res
+                    .status(500)
+                    .json({ok: false, err})
+            }
+            Order.count({}, (err, conteo) => {
+                res.json({ok: true, order, cuanto: conteo})
             })
+
+        })
 })
 
-
-//===================================
-//Show a order 
-//===================================
-app.get('/order/find/:id', headers, (req, res)=> {
+// =================================== Show a order
+// ===================================
+app.get('/order/find/:id', headers, (req, res) => {
     let id = req.params.id
-    
-    Order.findById({_id: id})
-            .exec((err, order) => {
-                if(err){
-                    res.status(400).json({
-                    ok: false,
-                    err
-                    })
-                }
 
-                if(!order){
-                    res.status(400).json({
+    Order
+        .findById({_id: id})
+        .exec((err, order) => {
+            if (err) {
+                res
+                    .status(400)
+                    .json({ok: false, err})
+            }
+
+            if (!order) {
+                res
+                    .status(400)
+                    .json({
                         ok: false,
                         err: {
                             message: 'this order does not exist'
                         }
                     })
-                }
-                res.json({
-                    ok: true,
-                    order
-                })
-            })
+            }
+            res.json({ok: true, order})
+        })
 })
-//===================================
-//Create a order
-//===================================
-app.post('/order', (req, res)=> {
+
+// =================================== Create a order
+// ===================================
+app.post('/order', (req, res) => {
     let body = req.body
 
     let order = new Order({
@@ -73,117 +66,164 @@ app.post('/order', (req, res)=> {
         email: body.email,
         description: body.description,
         available: true,
-        products: [{name: 'nombre del producto', priceUni: 9, quality:  2}, {name: 'nombre del producto', priceUni: 10, quality:  3}],
+        products: [
+            {
+                name: 'nombre del producto',
+                priceUni: 9,
+                quality: 2
+            }, {
+                name: 'nombre del producto',
+                priceUni: 10,
+                quality: 3
+            }
+        ]
     })
 
-    order.save((err, orderDB)=>{
-        if(err){
-            res.status(500).json({
-                ok: false,
-                err
-            })
+    order.save((err, orderDB) => {
+        if (err) {
+            res
+                .status(500)
+                .json({ok: false, err})
         }
-        if(!orderDB){
-            res.status(400).json({
-                ok: false,
-                err
-            })
+        if (!orderDB) {
+            res
+                .status(400)
+                .json({ok: false, err})
         }
-        res.json({
-            ok: true,
-            order: orderDB
+
+        //mandar el email con los datos del pedido
+        let testProducts = [{
+                name: 'nombre del producto',
+                priceUni: 9,
+                quality: 2
+            }, {
+                name: 'nombre del producto',
+                priceUni: 10,
+                quality: 3
+            }
+        ]
+
+        let htmlProduct = ''
+        testProducts.forEach((product)=>{
+            htmlProduct += `
+            <tr>
+                <td><p>${ product.name }</p></td>
+                <td>$ ${ product.priceUni }</td>
+                <td>$ ${ product.quality }</td>
+                <td>$ ${ product.quality * product.priceUni }</td>
+            </tr>
+            `
         })
-    })   
-})
 
-//===================================
-//Edit a product
-//===================================
-/*app.put('/product/:id', (req, res)=> {
-    
-    let id = req.params.id
+        let htmlOrder = `
+            <h4>Datos de tu pedido</h4>
+            <p>Tu pedido a sido recibido!!</p>
+            <br>
+            <ul>
+                <li> Nombre y apellido: ${body.name} ${body.lastName}
+                products</li>
+                <li>Direccion: ${ body.address }</li>
+                <li>Departamento: ${ body.departament }</li>
+                <li>Localidad: ${ body.location }</li>
+                <li>Email: ${ body.email }</li>
+                <li>Telefono: ${ body.telephone }</li>
+                <li>Descripcion: ${ body.description }</li>
+            </ul>
+            <br>
+            <h5>Productos</h5>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th>Precio</th>
+                        <th>Cantidad</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${ htmlProduct }
+                </tbody>
+            </table>
+        `
+        let transporter = nodeMailer.createTransport({
+            host: 'smtp.gmail.com',
+            port: 465,
+            secure: true,
+            auth: {
+                user: 'pechularus@gmail.com',
+                pass: 'mayak2020'
+            }
+        });
 
-    Product.findByIdAndUpdate(id, req.body, {new: true, runValidators: true}, (err, productDB) => {
-        if(err){
-            res.status(400).json({
-                ok: false,
-                err
-            })
-        }
+        let mailOptions = {
+            to: `pechularus@gmail.com, ${ body.email }`,
+            subject: 'Pedido - Panaderia',
+            html: htmlOrder
+        };
 
-        if(!productDB){
-            res.status(400).json({
-                ok: false,
-                err
-            })
-        }
+        transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+                return console.log(error);
+            }
+            console.log('Message %s sent: %s', info.messageId, info.response);
+        });
 
-        res.json({
-            ok: true,
-            product: productDB
-        })
+        res.json({ok: true, order: orderDB})
     })
 })
-*/
 
-//===================================
-//Delete a order
-//===================================
-app.delete('/order/delete/:id', (req, res)=> {
-    
+// =================================== Delete a order
+// ===================================
+app.delete('/order/delete/:id', (req, res) => {
+
     let id = req.params.id
 
     Order.findByIdAndDelete(id, (err, orderDB) => {
-        if(err){
-            res.status(400).json({
-                ok: false,
-                err
-            })
+        if (err) {
+            res
+                .status(400)
+                .json({ok: false, err})
         }
 
-        if(!orderDB){
-            res.status(400).json({
-                ok: false,
-                err: {
-                    message: "This product doesn't exist"
-                }
-            })
+        if (!orderDB) {
+            res
+                .status(400)
+                .json({
+                    ok: false,
+                    err: {
+                        message: "This product doesn't exist"
+                    }
+                })
         }
 
-        res.json({
-            ok: true,
-            message: "Order deleted"
-        })
+        res.json({ok: true, message: "Order deleted"})
 
     })
 })
 
-//===================================
-//Edit a order
-//===================================
-app.put('/order/edit/:id', (req, res)=> {
-    
+// =================================== Edit a order
+// ===================================
+app.put('/order/edit/:id', (req, res) => {
+
     let id = req.params.id
 
-    Order.findByIdAndUpdate(id, req.body, {new: true, runValidators: true}, (err, orderDB) => {
-        if(err){
-            res.status(400).json({
-                ok: false,
-                err
-            })
+    Order.findByIdAndUpdate(id, req.body, {
+        new: true,
+        runValidators: true
+    }, (err, orderDB) => {
+        if (err) {
+            res
+                .status(400)
+                .json({ok: false, err})
         }
 
-        if(!orderDB){
-            res.status(400).json({
-                ok: false,
-                err
-            })
+        if (!orderDB) {
+            res
+                .status(400)
+                .json({ok: false, err})
         }
 
-        res.json({
-            ok: true,
-            order: orderDB
-        })
+        res.json({ok: true, order: orderDB})
     })
 })
 
