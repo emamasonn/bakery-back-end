@@ -3,11 +3,12 @@ const app = express()
 const fs = require('fs')
 const path = require('path')
 const Imagen = require('../models/imagen')
+const { headers } = require('../milddlewares/milddelewares');
 
-app.get('/imagen/:tipo/:img', (req, res) => {
+app.get('/imagen/:tipo/:img', headers, (req, res) => {
     let tipo = req.params.tipo
     let img = req.params.img
-    
+
     let pathImagen = path.resolve(__dirname, `../../uploads/${tipo}/${img}`)
     if(fs.existsSync(pathImagen)){
         res.sendFile(pathImagen)
@@ -18,7 +19,7 @@ app.get('/imagen/:tipo/:img', (req, res) => {
 })
 
 
-app.get('/imagen/product', (req, res) => {
+app.get('/imagen/product', headers, (req, res) => {
 
     Imagen.find({})
         .exec((err, images) => {
@@ -39,17 +40,18 @@ app.get('/imagen/product', (req, res) => {
         })
 })
 
-app.put('/imagen/:name', (req, res)=> {
+app.put('/imagen/product/:name', (req, res)=> {
     
     let nameImg = req.params.name
     let name = req.body.name
     let description = req.body.description
-    let extension = req.body.extension
+
+    let nameFile = nameImg.split('.')
+    let extension = nameFile[nameFile.length - 1]
 
     let dataNew = {
-        name: name +'.'+extension,
+        name: `${name}.${extension}`,
         description,
-        extension
     }
 
     let pathImagen = path.resolve(__dirname, `../../uploads/product/${nameImg}`)
@@ -80,7 +82,7 @@ app.put('/imagen/:name', (req, res)=> {
     }else{
         res.json({
             ok: false,
-            messagge: 'La ruta no es valida',
+            messagge: 'The path is not valid',
         })
     }
 
