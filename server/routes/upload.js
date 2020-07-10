@@ -2,14 +2,13 @@ const express = require('express');
 const fileUpload = require('express-fileupload');
 const app = express();
 const Imagen = require('../models/imagen')
-//const Usuario = require('../models/usuario')
-//const Producto = require('../models/producto')
+const { headers } = require('../milddlewares/milddelewares');
 const fs = require('fs')
 const path = require('path')
+
 app.use(fileUpload());
 
-
-app.post('/upload/:tipo', (req, res)=>{
+app.post('/upload/:tipo', headers, (req, res)=>{
     
     let tipo = req.params.tipo
     let nameImg = req.body.name
@@ -19,7 +18,7 @@ app.post('/upload/:tipo', (req, res)=>{
         return res.status(400).json({
             ok: false,
             err: {
-                message: "El archivo no pudo ser cargado"
+                message: "File not found"
             }
         });
     }
@@ -29,7 +28,7 @@ app.post('/upload/:tipo', (req, res)=>{
         return res.status(400).json({
             ok: false,
             err: {
-                message: 'El tipo no es valido'
+                message: 'The type of file is not valid'
             }
         })
     }
@@ -44,7 +43,7 @@ app.post('/upload/:tipo', (req, res)=>{
         return res.status(400).json({
             ok: false,
             err: {
-                message: 'La extension no es valida'
+                message: 'The extension of the file not is valid'
             }
         })
     }

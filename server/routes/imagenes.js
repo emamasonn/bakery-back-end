@@ -6,7 +6,8 @@ const Imagen = require('../models/imagen')
 
 app.get('/imagen/:tipo/:img', (req, res) => {
     let tipo = req.params.tipo
-
+    let img = req.params.img
+    
     let pathImagen = path.resolve(__dirname, `../../uploads/${tipo}/${img}`)
     if(fs.existsSync(pathImagen)){
         res.sendFile(pathImagen)
