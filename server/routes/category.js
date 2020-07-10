@@ -28,7 +28,7 @@ app.get('/category', headers, (req, res)=> {
 //===================================
 //Show a category
 //===================================
-app.get('/category/:id', (req, res)=> {
+app.get('/category/:id', headers, (req, res)=> {
     let id = req.params.id
     Category.findById(id, (err, category) => {
         if(err){
@@ -56,7 +56,7 @@ app.get('/category/:id', (req, res)=> {
 //===================================
 //Create a category
 //===================================
-app.post('/category', (req, res)=> {
+app.post('/category', headers, (req, res)=> {
     let body = req.body
     
     let category = new Category({
@@ -87,7 +87,7 @@ app.post('/category', (req, res)=> {
 //===================================
 //Edit a category
 //===================================
-app.put('/category/:id', (req, res)=> {
+app.put('/category/:id', headers, (req, res)=> {
     
     let id = req.params.id
     
@@ -121,7 +121,7 @@ app.put('/category/:id', (req, res)=> {
 //===================================
 //Delete a category
 //===================================
-app.delete('/category/:id', (req, res)=> {
+app.delete('/category/:id', headers, (req, res)=> {
     
     let id = req.params.id
     Category.findByIdAndRemove(id, (err, categoryDB) => {
@@ -143,7 +143,7 @@ app.delete('/category/:id', (req, res)=> {
 
         res.json({
             ok: true,
-            message: "this category was successfully deleted"
+            message: "This category was successfully deleted"
         })
 
     })

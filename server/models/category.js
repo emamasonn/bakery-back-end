@@ -9,7 +9,6 @@ let categorySchema = new Schema({
     },
     description: {
         type: String,
-        unique: true,
         required: [true, 'The description is required']
     },
 })
