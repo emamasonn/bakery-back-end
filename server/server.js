@@ -1,4 +1,4 @@
-require("./config/config")
+const { port, urlDB } = require("./config/config")
 
 const express = require('express')
 const app = express()
@@ -11,9 +11,8 @@ app.use(bodyParser.urlencoded({ extended: false }))
 // parse application/json
 app.use(bodyParser.json())
 app.use(require("./routes/index"))
-//app.use(require("./routes/login"))
 
-mongoose.connect(process.env.URLDB,
+mongoose.connect(urlDB,
     { useNewUrlParser: true, useCreateIndex: true, useUnifiedTopology: true, useFindAndModify: true }, 
     (err, res) => {
     if (err) throw err
@@ -21,6 +20,6 @@ mongoose.connect(process.env.URLDB,
     console.log("base de datos online")
 })
 
-app.listen(process.env.PORT, () => {
-    console.log("Escuchando el puerto: ", process.env.PORT)
+app.listen(port, () => {
+    console.log("Escuchando el puerto: ", port)
 })

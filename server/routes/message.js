@@ -3,6 +3,7 @@ const app = express();
 const Message = require('../models/message');
 const nodeMailer = require('nodemailer');
 const { headers } = require('../milddlewares/milddelewares');
+const { user_gmail, pass_gmail } = require('../config/config');
 
 //===================================
 //Get all the message
@@ -53,18 +54,19 @@ app.post('/message', (req, res)=> {
         </lu>
         <br>
     `
+
     let transporter = nodeMailer.createTransport({
         host: 'smtp.gmail.com',
         port: 465,
         secure: true,
         auth: {
-            user: 'pechularus@gmail.com',
-            pass: 'mayak2020'
+            user: user_gmail,
+            pass: pass_gmail,
         }
     });
 
     let mailOptions = {
-        to: 'pechularus@gmail.com',
+        to: user_gmail,
         subject: 'Consulta - Panaderia',
         html: htmlMessage,
     };
