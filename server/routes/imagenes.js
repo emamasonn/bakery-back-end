@@ -88,7 +88,7 @@ app.put('/imagen/product/:name', (req, res)=> {
 
 })
 
-app.delete('/imagen/:name', (req, res)=> {
+app.delete('/imagen/:name', headers, (req, res)=> {
     
     let name = req.params.name
 

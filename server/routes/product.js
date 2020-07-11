@@ -38,8 +38,8 @@ app.get('/product', headers, (req, res)=> {
 //===================================
 app.get('/product/:id', headers, (req, res)=> {
     let id = req.params.id
-    console.log(id)
-    Product.findById({id})
+    
+    Product.findById({_id: id})
             .populate('imagen', 'name')
             .exec((err, product) => {
                 if(err){
@@ -91,7 +91,7 @@ app.get('/product/search/:termino', headers, (req, res)=>{
 //===================================
 //Create a product
 //===================================
-app.post('/product', (req, res)=> {
+app.post('/product', headers, (req, res)=> {
     let body = req.body
     
     let product = new Product({
@@ -126,7 +126,7 @@ app.post('/product', (req, res)=> {
 //===================================
 //Edit a product
 //===================================
-app.put('/product/:id', (req, res)=> {
+app.put('/product/:id', headers, (req, res)=> {
     
     let id = req.params.id
 
@@ -155,7 +155,7 @@ app.put('/product/:id', (req, res)=> {
 //===================================
 //Delete a product
 //===================================
-app.delete('/product/:id', (req, res)=> {
+app.delete('/product/:id', headers, (req, res)=> {
     
     let id = req.params.id
 
@@ -203,7 +203,7 @@ app.get('/product/find/:category', headers, (req, res)=> {
                     res.status(400).json({
                         ok: false,
                         err: {
-                            message: 'this product does not exist'
+                            message: 'This product does not exist'
                         }
                     })
                 }
