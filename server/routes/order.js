@@ -3,6 +3,7 @@ const app = express();
 const Order = require('../models/order');
 const nodeMailer = require('nodemailer');
 const {headers} = require('../milddlewares/milddelewares');
+const { user_gmail, pass_gmail } = require('../config/config');
 
 // =================================== Get all the Order
 // ===================================
@@ -66,17 +67,7 @@ app.post('/order', (req, res) => {
         email: body.email,
         description: body.description,
         available: true,
-        products: [
-            {
-                name: 'nombre del producto',
-                priceUni: 9,
-                quality: 2
-            }, {
-                name: 'nombre del producto',
-                priceUni: 10,
-                quality: 3
-            }
-        ]
+        products: body.products
     })
 
     order.save((err, orderDB) => {
@@ -91,25 +82,14 @@ app.post('/order', (req, res) => {
                 .json({ok: false, err})
         }
 
-        //mandar el email con los datos del pedido
-        let testProducts = [{
-                name: 'nombre del producto',
-                priceUni: 9,
-                quality: 2
-            }, {
-                name: 'nombre del producto',
-                priceUni: 10,
-                quality: 3
-            }
-        ]
 
         let htmlProduct = ''
-        testProducts.forEach((product)=>{
+        body.products.forEach((product)=>{
             htmlProduct += `
             <tr>
                 <td><p>${ product.name }</p></td>
                 <td>$ ${ product.priceUni }</td>
-                <td>$ ${ product.quality }</td>
+                <td>${ product.quality }</td>
                 <td>$ ${ product.quality * product.priceUni }</td>
             </tr>
             `
@@ -130,7 +110,7 @@ app.post('/order', (req, res) => {
                 <li>Descripcion: ${ body.description }</li>
             </ul>
             <br>
-            <h5>Productos</h5>
+            <h4>Productos</h4>
             <table>
                 <thead>
                     <tr>
@@ -150,13 +130,13 @@ app.post('/order', (req, res) => {
             port: 465,
             secure: true,
             auth: {
-                user: 'pechularus@gmail.com',
-                pass: 'mayak2020'
+                user: `${ user_gmail }`,
+                pass: `${ pass_gmail}`
             }
         });
 
         let mailOptions = {
-            to: `pechularus@gmail.com, ${ body.email }`,
+            to: `${ user_gmail }, ${ body.email }`,
             subject: 'Pedido - Panaderia',
             html: htmlOrder
         };

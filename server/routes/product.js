@@ -38,9 +38,9 @@ app.get('/product', headers, (req, res)=> {
 //===================================
 app.get('/product/:id', headers, (req, res)=> {
     let id = req.params.id
-    
+
     Product.findById({_id: id})
-            .populate('imagen', 'name')
+            .populate('img', 'name')
             .exec((err, product) => {
                 if(err){
                     res.status(400).json({
@@ -59,7 +59,7 @@ app.get('/product/:id', headers, (req, res)=> {
                 }
                 res.json({
                     ok: true,
-                    productff: product
+                    product: product
                 })
             })
 })
@@ -72,7 +72,7 @@ app.get('/product/search/:termino', headers, (req, res)=>{
     let regex = new RegExp(termino, 'i')
     
     Product.find({name: regex})
-        .populate('imagen', 'name')
+        .populate('img', 'name')
         .exec((err, product)=>{
             if(err){
                 res.status(400).json({
@@ -190,7 +190,7 @@ app.delete('/product/:id', headers, (req, res)=> {
 app.get('/product/find/:category', headers, (req, res)=> {
     let category = req.params.category
     Product.find({category: category})
-            .populate('imagen', 'name')
+            .populate('img', 'name')
             .exec((err, product) => {
                 if(err){
                     res.status(400).json({

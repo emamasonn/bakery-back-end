@@ -29,7 +29,7 @@ app.get('/message', headers, (req, res)=> {
 //===================================
 //Create a message
 //===================================
-app.post('/message', (req, res)=> {
+app.post('/message', headers, (req, res)=> {
     let body = req.body
     
     let message = new Message({
@@ -37,7 +37,6 @@ app.post('/message', (req, res)=> {
         lastName: body.lastName,
         email: body.email,
         telephone: body.telephone,
-        answered: body.answeredStatus,
         message: body.message,
     })
 
@@ -48,9 +47,9 @@ app.post('/message', (req, res)=> {
         <br>
         <h4>Datos de la consulta</h4>
         <lu>
-            <li>Email: ${ body.name} ${ body.lastName}</li>
+            <li>Nombre: ${ body.name} ${ body.lastName}</li>
             <li>Email: ${ body.email}</li>
-            <li>Email: ${ body.telephone}</li>
+            <li>Telefono: ${ body.telephone}</li>
         </lu>
         <br>
     `
@@ -101,7 +100,7 @@ app.post('/message', (req, res)=> {
 //===================================
 //Delete a message
 //===================================
-app.delete('/message/delete/:id', (req, res)=> {
+app.delete('/message/delete/:id', headers, (req, res)=> {
     
     let id = req.params.id
 
@@ -134,7 +133,7 @@ app.delete('/message/delete/:id', (req, res)=> {
 //===================================
 //Change the status of the message
 //===================================
-app.put('/message/change-status/:id', (req, res)=> {
+app.put('/message/change-status/:id', headers, (req, res)=> {
     
     let id = req.params.id
     let answeredStatus = req.body.answered 
