@@ -211,7 +211,7 @@ app.get('/product/find/:category', headers, (req, res)=> {
                 }
                 res.json({
                     ok: true,
-                    productMagia: product
+                    product
                 })
             })
 })
