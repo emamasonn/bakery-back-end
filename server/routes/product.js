@@ -6,7 +6,7 @@ const { headers } = require('../milddlewares/milddelewares');
 //===================================
 //Get all the products
 //===================================
-app.get('/product/:begin/:end', headers, (req, res)=> {
+app.get('/product/all/:begin/:end', headers, (req, res)=> {
     let begin = Number(req.params.begin)
     let end = Number(req.params.end)
 
@@ -188,8 +188,10 @@ app.delete('/product/:id', headers, (req, res)=> {
 //Show products for categories
 //===================================
 app.get('/product/find/:category', headers, (req, res)=> {
-    let category = req.params.category
-    Product.find({category: category})
+    
+    let categoryProduct = req.params.category
+    
+    Product.find({category: categoryProduct})
             .populate('img', 'name')
             .exec((err, product) => {
                 if(err){
@@ -209,7 +211,7 @@ app.get('/product/find/:category', headers, (req, res)=> {
                 }
                 res.json({
                     ok: true,
-                    product
+                    productMagia: product
                 })
             })
 })
