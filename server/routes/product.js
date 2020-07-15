@@ -6,9 +6,9 @@ const { headers } = require('../milddlewares/milddelewares');
 //===================================
 //Get all the products
 //===================================
-app.get('/product', headers, (req, res)=> {
-    let begin = Number(req.query.desde) || 0
-    let end = Number(req.query.limite) || 15
+app.get('/product/:begin/:end', headers, (req, res)=> {
+    let begin = Number(req.params.begin)
+    let end = Number(req.params.end)
 
     Product.find({})
             .skip(begin)
