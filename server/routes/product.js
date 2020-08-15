@@ -159,7 +159,7 @@ app.delete('/product/:id', headers, (req, res)=> {
     
     let id = req.params.id
 
-    Product.findByIdAndUpdate(id, {available: false}, (err, productDB) => {
+    Product.findByIdAndDelete(id, (err, productDB) => {
         if(err){
             res.status(400).json({
                 ok: false,
